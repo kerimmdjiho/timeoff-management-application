@@ -1,0 +1,27 @@
+version: "3"
+services:
+  timeoff-db:
+    image: "mysql:5.7.25"
+    container_name: "timeoff-db"
+    ports:
+      - '3306:3306'
+    volumes:
+      - ./db_data:/var/lib/mysql
+    environment:
+       MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+       MYSQL_DATABASE: ${DB_NAME}
+    
+  timeoff-app:
+    container_name: "timeoff-app"
+    build: ./
+    ports:
+      - '3000:3000'
+    env_file:
+      - .env 
+    entrypoint: ["/bin/bash", "./entrypoint.sh"]
+    depends_on:
+      - timeoff-db
+
+
+
+
