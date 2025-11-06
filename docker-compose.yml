@@ -18,9 +18,11 @@ services:
       - '3000:3000'
     env_file:
       - .env 
-    entrypoint: ["/bin/bash", "./entrypoint.sh"]
     depends_on:
       - timeoff-db
+
+volumes:
+  db_data:
 
 
 

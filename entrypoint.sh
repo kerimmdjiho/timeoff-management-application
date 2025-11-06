@@ -1,3 +1,4 @@
 sleep 10
-npm npm run-script db-update
+npx npm-force-resolutions
+npm run-script db-update
 npm start 

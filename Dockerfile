@@ -1,5 +1,8 @@
 FROM node:13
 WORKDIR /app
-COPY package*.json ./
-RUN npm install
+COPY package*.json .
+COPY entrypoint.sh .
 COPY . .
+RUN npm install
+EXPOSE 3000
+ENTRYPOINT ["/bin/bash", "./entrypoint.sh"]
