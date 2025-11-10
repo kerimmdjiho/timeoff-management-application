@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: timeoff-db-deployment
+  labels:
+    app: timeoff-db
+spec:
+  selector:
+    matchLabels:
+      app: timeoff-db
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: timeoff-db
+    spec:
+      containers:
+        - name: timeoff-db
+          image: mysql:5.7.25
+          ports:
+            - containerPort: 3306
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: secrets
+                  key: db_password
+            - name: MYSQL_DATABASE
+              valueFrom:
+                secretKeyRef:
+                  name: secrets
+                  key: db_name
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: timeoff-db-service
+spec:
+  selector:
+    app: timeoff-db
+  ports:
+    - protocol: TCP
+      port: 3306
+      targetPort: 3306
+  type: ClusterIP

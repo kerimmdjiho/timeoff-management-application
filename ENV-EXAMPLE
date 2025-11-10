@@ -1,0 +1,8 @@
+#popunit svojim nekim podacima
+
+NODE_ENV=
+
+DB_USERNAME=
+DB_NAME=
+DB_PASSWORD=
+DB_HOST=

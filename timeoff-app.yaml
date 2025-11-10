@@ -1,0 +1,75 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: timeoff-app-deployment
+  labels:
+    app: timeoff-app
+spec:
+  selector:
+    matchLabels:
+      app: timeoff-app
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: timeoff-app
+    spec:
+      initContainers:
+        - name: db-wait
+          image: busybox:1.36 
+          command:
+            - sh
+            - -c
+            - >
+              set -x; 
+              echo "Waiting for timeoff-db-service:3306";
+              while ! nc -z timeoff-db-service 3306; do
+                echo "timeoff-db-service:3306 nnot available ";
+                sleep 2;
+              done;
+              echo "timeoff-db-service:3306 is available!";
+      containers:
+        - name: timeoff-app
+          image: timeoff-app:minikube
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 3000
+          env:
+            - name: NODE_ENV
+              valueFrom:
+                secretKeyRef:
+                  name: secrets
+                  key: node_env
+            - name: DB_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: secrets
+                  key: db_username
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: secrets
+                  key: db_password
+            - name: DB_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: secrets
+                  key: db_host
+            - name: DB_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: secrets
+                  key: db_name
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: timeoff-app-service
+spec:
+  selector:
+    app: timeoff-app
+  ports:
+    - protocol: TCP
+      port: 3000
+      targetPort: 3000
+  type: NodePort
