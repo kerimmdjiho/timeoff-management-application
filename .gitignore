@@ -7,3 +7,4 @@ node_modules/
 *.sqlite
 *.env
 db_data/
+secrets.yaml
