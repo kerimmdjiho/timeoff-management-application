@@ -1,5 +1,5 @@
-resource "google_sql_database_instance" "timeoff_db_instance" {
-  name             = "timeoff-db-instance"
+resource "google_sql_database_instance" "timeoff_db_instance_gke" {
+  name             = "timeoff-db-instance-gke"
   database_version = "MYSQL_5_7"
   region           = var.gcp_region
   settings {
@@ -14,21 +14,21 @@ resource "google_sql_database_instance" "timeoff_db_instance" {
       private_network = data.google_compute_network.default_network.id
     }
   }
-  depends_on = [google_service_networking_connection.private_vpc_connection]
+  depends_on = [google_service_networking_connection.private_vpc_connection_gke]
 }
 
 
 resource "google_sql_database" "timeoff_db" {
   name      = var.db_name
-  instance  = google_sql_database_instance.timeoff_db_instance.name
+  instance  = google_sql_database_instance.timeoff_db_instance_gke.name
   charset   = "UTF8"
   collation = "utf8_general_ci"
 }
 
 resource "google_sql_user" "timeoff_db_user" {
-  name     = google_secret_manager_secret_version.db_username_secret_version.secret_data
-  instance = google_sql_database_instance.timeoff_db_instance.name
+  name     = kubernetes_secret.timeoff_secrets.data["db_user"]
+  instance = google_sql_database_instance.timeoff_db_instance_gke.name
   host     = "%" #da moze sve ip adrese da se povezu
-  password = google_secret_manager_secret_version.db_pass_secret_version.secret_data
+  password = kubernetes_secret.timeoff_secrets.data["db_password"]
 }
 
